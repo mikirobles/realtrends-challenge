@@ -30,6 +30,8 @@ const state: State = {
 };
 
 io.on("connection", (socket: Socket) => {
+  socket.join("voting-room");
+
   socket.emit("update", state);
 
   socket.on("vote", (votingIndex) => {
@@ -38,16 +40,14 @@ io.on("connection", (socket: Socket) => {
       vote: votingIndex,
     });
     state.voteSummary[votingIndex] += 1;
-    socket.emit("update", state);
+    io.to("voting-room").emit("update", state);
   });
 
   socket.on("resetVote", () => {
     state.votes = [];
     state.voteSummary = [0, 0];
-    socket.emit("update", state);
+    io.to("voting-room").emit("update", state);
   });
-
-  // ...
 });
 
 httpServer.listen(3001);
