@@ -7,6 +7,8 @@ import {State} from "./types";
 
 const httpServer = createServer();
 
+const ALLOW_MULTIPLE_VOTES = true;
+
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000",
@@ -29,12 +31,17 @@ const state: State = {
   ],
 };
 
+function hasVoted(id: string): boolean {
+  return state.votes.some(({uuid}) => uuid == id);
+}
+
 io.on("connection", (socket: Socket) => {
   socket.join("voting-room");
 
   socket.emit("update", state);
 
   socket.on("vote", (votingIndex) => {
+    if (!ALLOW_MULTIPLE_VOTES && hasVoted(socket.id)) return;
     state.votes.push({
       uuid: socket.id,
       vote: votingIndex,

@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import CombatLog from "~/app/components/CombatLog";
 import VotingBox from "~/app/components/VotingBox";
 import useVote from "~/app/hooks/useVote";
 import logo from "~/assets/logo.svg";
@@ -26,9 +27,10 @@ const Home: React.FC = () => {
             />
           ))}
         </div>
-        <button style={{margin: 20}} onClick={resetVote}>
+        <button className={styles.resetButton} style={{margin: 20}} onClick={resetVote}>
           STOP THE COUNT!!!!
         </button>
+        <CombatLog />
       </header>
     </main>
   );
