@@ -13,7 +13,7 @@ function CombatLog() {
       <div className={styles.combatLog}>
         {state.votes.map(({uuid, vote}, index) => (
           <div key={index}>
-            <p>{`${uuid} (weird name) voted for ${state.options[vote].name}`}</p>
+            <p>{`${uuid} voted for ${state.options[vote].name}`}</p>
           </div>
         ))}
       </div>

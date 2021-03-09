@@ -22,6 +22,7 @@ const Home: React.FC = () => {
               key={index}
               image={option.image}
               name={option.name}
+              voteNumber={index + 1}
               votePercentage={state.voteSummary[index] / state.votes.length}
               onVote={() => vote(index)}
             />

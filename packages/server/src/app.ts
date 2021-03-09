@@ -2,20 +2,25 @@ import {createServer} from "http";
 
 import {Socket} from "socket.io";
 import {Server} from "socket.io";
+import {ChatClient} from "twitch-chat-client";
 
 import {State} from "./types";
 
 const httpServer = createServer();
 
-const ALLOW_MULTIPLE_VOTES = true;
-
+// Set up socket io / chat listeners
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
+const chatClient = ChatClient.anonymous({
+  channels: ["goncypozzo"],
+});
+chatClient.connect();
 
+// Set up empty app state
 const state: State = {
   votes: [],
   voteSummary: [0, 0],
@@ -31,23 +36,29 @@ const state: State = {
   ],
 };
 
+// Helper function to prevent duplicate votes
 function hasVoted(id: string): boolean {
   return state.votes.some(({uuid}) => uuid == id);
 }
 
-io.on("connection", (socket: Socket) => {
+function vote(uuid: string, vote: number) {
+  if (hasVoted(uuid)) return;
+  state.votes.push({
+    uuid,
+    vote,
+  });
+  state.voteSummary[vote] += 1;
+  io.to("voting-room").emit("update", state);
+}
+
+// Handle client-side votes
+io.on("connection", async (socket: Socket) => {
   socket.join("voting-room");
 
   socket.emit("update", state);
 
   socket.on("vote", (votingIndex) => {
-    if (!ALLOW_MULTIPLE_VOTES && hasVoted(socket.id)) return;
-    state.votes.push({
-      uuid: socket.id,
-      vote: votingIndex,
-    });
-    state.voteSummary[votingIndex] += 1;
-    io.to("voting-room").emit("update", state);
+    vote(socket.id, votingIndex);
   });
 
   socket.on("resetVote", () => {
@@ -55,6 +66,17 @@ io.on("connection", (socket: Socket) => {
     state.voteSummary = [0, 0];
     io.to("voting-room").emit("update", state);
   });
+});
+
+// Handle twitch votes
+chatClient.onMessage((channel, user, message) => {
+  if (message === "1" || message === "2") {
+    // Users cannot vote twice
+    if (hasVoted(user)) return;
+
+    const optionVoted = Number(message);
+    vote(user, optionVoted - 1);
+  }
 });
 
 httpServer.listen(3001);
