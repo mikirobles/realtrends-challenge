@@ -39,7 +39,7 @@ const state: State = {
 
 // Helper function to prevent duplicate votes
 function hasVoted(id: string): boolean {
-  return !!state.voteRecord[id];
+  return typeof state.voteRecord[id] !== "undefined";
 }
 
 function vote(uuid: string, vote: number) {
