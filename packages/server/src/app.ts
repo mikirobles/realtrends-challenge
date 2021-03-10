@@ -23,6 +23,7 @@ chatClient.connect();
 // Set up empty app state
 const state: State = {
   votes: [],
+  voteRecord: {},
   voteSummary: [0, 0],
   options: [
     {
@@ -38,7 +39,7 @@ const state: State = {
 
 // Helper function to prevent duplicate votes
 function hasVoted(id: string): boolean {
-  return state.votes.some(({uuid}) => uuid == id);
+  return !!state.voteRecord[id];
 }
 
 function vote(uuid: string, vote: number) {
@@ -48,7 +49,13 @@ function vote(uuid: string, vote: number) {
     vote,
   });
   state.voteSummary[vote] += 1;
-  io.to("voting-room").emit("update", state);
+  state.voteRecord[uuid] = vote;
+}
+
+function resetState() {
+  state.votes = [];
+  state.voteSummary = [0, 0];
+  state.voteRecord = {};
 }
 
 // Handle client-side votes
@@ -59,21 +66,18 @@ io.on("connection", async (socket: Socket) => {
 
   socket.on("vote", (votingIndex) => {
     vote(socket.id, votingIndex);
+    io.to("voting-room").emit("update", state);
   });
 
   socket.on("resetVote", () => {
-    state.votes = [];
-    state.voteSummary = [0, 0];
+    resetState();
     io.to("voting-room").emit("update", state);
   });
 });
 
 // Handle twitch votes
-chatClient.onMessage((channel, user, message) => {
+chatClient.onMessage((_, user, message) => {
   if (message === "1" || message === "2") {
-    // Users cannot vote twice
-    if (hasVoted(user)) return;
-
     const optionVoted = Number(message);
     vote(user, optionVoted - 1);
   }
