@@ -15,7 +15,10 @@
     background: linear-gradient(0, var(--color) 0%, var(--color) var(--vote), white var(--vote), white 100%);
 
     img {
-        width: 100%;
+        width: 270px;
+        height: 270px;
+        object-fit: cover;
+        background-color: gray;
     }
 
     h2 {
