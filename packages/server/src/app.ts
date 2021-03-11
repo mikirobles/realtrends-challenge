@@ -65,6 +65,9 @@ io.on("connection", async (socket: Socket) => {
   socket.emit("update", state);
 
   socket.on("vote", (votingIndex) => {
+    // Note: Socket ID changes on page refresh
+    // If needed, we could generate an ID and save to cookies
+    // and check that instead to avoid cheaters!
     vote(socket.id, votingIndex);
     io.to("voting-room").emit("update", state);
   });
