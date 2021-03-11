@@ -29,6 +29,8 @@ const initialState: VotingState = {
 };
 
 function useVote() {
+  // @Performance: Put the state in a context/global state,
+  // so it does not need to be initialized on every hook call
   const [state, setState] = useState<VotingState>(initialState);
 
   socket.on("update", (newState: VotingState) => setState(newState));

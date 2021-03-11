@@ -25,12 +25,12 @@ function VotingBox({name, image, votePercentage, onVote, voteNumber}: VotingBoxP
   return (
     <button className={styles.container} style={style} onClick={onVote}>
       <img src={image} />
-      <h2>{name}</h2>
+      <h2 className={styles.name}>{name}</h2>
       <span>
         {((votePercentage || 0) * 100).toFixed(1)}% - Votes:{" "}
         {Math.round((votePercentage || 0) * state.votes.length)}
       </span>
-      <h2>Votar con {voteNumber} en el chat</h2>
+      <h2>Type {voteNumber} in the chat to vote</h2>
     </button>
   );
 }
