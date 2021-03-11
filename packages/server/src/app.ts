@@ -83,6 +83,7 @@ chatClient.onMessage((_, user, message) => {
   if (message === "1" || message === "2") {
     const optionVoted = Number(message);
     vote(user, optionVoted - 1);
+    io.to("voting-room").emit("update", state);
   }
 });
 
