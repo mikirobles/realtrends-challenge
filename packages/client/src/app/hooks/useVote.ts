@@ -23,8 +23,8 @@ const initialState: VotingState = {
   voteSummary: [0, 0],
   votes: [],
   options: [
-    {name: "loading", image: ""},
-    {name: "loading1", image: ""},
+    {name: "Loading...", image: ""},
+    {name: "Loading...", image: ""},
   ],
 };
 
